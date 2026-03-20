@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DreamMax Remote">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>DreamMax Remote</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: rgba(0,0,0,0.3);
+            padding: 10px 15px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4757;
+            transition: background 0.3s;
+        }
+        
+        .status-indicator.connected {
+            background: #2ed573;
+        }
+        
+        .settings-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            padding: 0;
+        }
+        
+        .container {
+            padding: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .power-btn-small {
+            width: 60px;
+            height: 50px;
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(231, 76, 60, 0.3);
+        }
+        
+        .mute-btn {
+            width: 60px;
+            height: 50px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .number-btn {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .vol-ch-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .control-btn {
+            width: 100%;
+            height: 45px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .control-btn i {
+            font-size: 1rem;
+        }
+        
+        .home-row {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .home-btn {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(145deg, #16a085, #1abc9c);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(22, 160, 133, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .d-pad-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .d-pad {
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(145deg, #7f8c8d, #95a5a6);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+        
+        .d-pad-btn {
+            position: absolute;
+            background: transparent;
+            border: none;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .d-pad-btn:active {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .d-pad-up { top: 5px; left: 50%; transform: translateX(-50%); }
+        .d-pad-down { bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .d-pad-left { left: 5px; top: 50%; transform: translateY(-50%); }
+        .d-pad-right { right: 5px; top: 50%; transform: translateY(-50%); }
+        
+        .d-pad-ok {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 50%;
+            border: 3px solid #7f8c8d;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .info-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .color-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .color-btn {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .color-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .color-btn span {
+            font-size: 0.65rem;
+        }
+        
+        .btn-red { background: linear-gradient(145deg, #e74c3c, #c0392b); }
+        .btn-green { background: linear-gradient(145deg, #27ae60, #1e8449); }
+        .btn-yellow { background: linear-gradient(145deg, #f39c12, #d68910); }
+        .btn-blue { background: linear-gradient(145deg, #3498db, #2980b9); }
+        
+        .fav-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .fav-btn {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .fav-btn i {
+            font-size: 0.9rem;
+        }
+        
+        .f-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .f-btn {
+            width: 100%;
+            height: 38px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .media-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .media-btn {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo {
+            text-align: center;
+            margin: 20px 0 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+        }
+        
+        .logo-text span {
+            color: #3498db;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.3rem;
+        }
+        
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            box-shadow: none;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+        
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-test {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .btn-save {
+            background: linear-gradient(145deg, #27ae60, #1e8449);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .message {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            z-index: 1001;
+            transition: transform 0.3s;
+        }
+        
+        .message.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .message.error {
+            background: rgba(231, 76, 60, 0.9);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .power-btn-small:active,
+        .mute-btn:active,
+        .number-btn:active,
+        .control-btn:active,
+        .home-btn:active,
+        .color-btn:active,
+        .fav-btn:active,
+        .f-btn:active,
+        .media-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-satellite-dish"></i> DreamMax B9S2X</h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <button class="settings-btn" onclick="openSettings()">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="top-row">
+            <button class="power-btn-small" onclick="sendCommand(116)" data-command="116">
+                <i class="fas fa-power-off"></i>
+            </button>
+            <button class="mute-btn" onclick="sendCommand(113)" data-command="113">
+                <i class="fas fa-volume-mute"></i>
+            </button>
+        </div>
+        
+        <div class="number-pad">
+            <button class="number-btn" onclick="sendNumber(1)" data-command="2">1</button>
+            <button class="number-btn" onclick="sendNumber(2)" data-command="3">2</button>
+            <button class="number-btn" onclick="sendNumber(3)" data-command="4">3</button>
+            <button class="number-btn" onclick="sendNumber(4)" data-command="5">4</button>
+            <button class="number-btn" onclick="sendNumber(5)" data-command="6">5</button>
+            <button class="number-btn" onclick="sendNumber(6)" data-command="7">6</button>
+            <button class="number-btn" onclick="sendNumber(7)" data-command="8">7</button>
+            <button class="number-btn" onclick="sendNumber(8)" data-command="9">8</button>
+            <button class="number-btn" onclick="sendNumber(9)" data-command="10">9</button>
+        </div>
+        
+        <div class="vol-ch-row">
+            <button class="control-btn" onclick="sendCommand(115)" data-command="115">
+                <i class="fas fa-volume-up"></i>
+                <span>VOL+</span>
+            </button>
+            <button class="control-btn" onclick="sendNumber(0)" data-command="11">0</button>
+            <button class="control-btn" onclick="sendCommand(178)" data-command="178">
+                <i class="fas fa-chevron-up"></i>
+                <span>CH+</span>
+            </button>
+            <button class="control-btn" onclick="sendCommand(114)" data-command="114">
+                <i class="fas fa-volume-down"></i>
+                <span>VOL-</span>
+            </button>
+            <button class="control-btn" onclick="sendCommand(509)" data-command="509">
+                <span>SAT/Group</span>
+            </button>
+            <button class="control-btn" onclick="sendCommand(177)" data-command="177">
+                <i class="fas fa-chevron-down"></i>
+                <span>CH-</span>
+            </button>
+        </div>
+        
+        <div class="home-row">
+            <button class="control-btn" onclick="sendCommand(139)" data-command="139">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="home-btn" onclick="sendCommand(172)" data-command="172">
+                <i class="fas fa-home"></i>
+            </button>
+            <button class="control-btn" onclick="sendCommand(158)" data-command="158">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+        
+        <div class="d-pad-container">
+            <div class="d-pad">
+                <button class="d-pad-btn d-pad-up" onclick="sendCommand(103)" data-command="103">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+                <button class="d-pad-btn d-pad-down" onclick="sendCommand(104)" data-command="104">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <button class="d-pad-btn d-pad-left" onclick="sendCommand(105)" data-command="105">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="d-pad-btn d-pad-right" onclick="sendCommand(106)" data-command="106">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="d-pad-ok" onclick="sendCommand(107)" data-command="107">
+                    OK
+                </button>
+            </div>
+        </div>
+        
+        <div class="info-row">
+            <button class="control-btn" onclick="sendCommand(506)" data-command="506">
+                <i class="fas fa-info-circle"></i>
+            </button>
+            <button class="control-btn" onclick="sendCommand(511)" data-command="511">
+                <span>IPTV</span>
+            </button>
+            <button class="control-btn" onclick="sendCommand(513)" data-command="513">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+        
+        <div class="color-buttons">
+            <button class="color-btn btn-red" onclick="sendCommand(514)" data-command="514">
+                <i class="fas fa-mobile-alt"></i>
+                <span>RED</span>
+            </button>
+            <button class="color-btn btn-green" onclick="sendCommand(515)" data-command="515">
+                <i class="fas fa-list-alt"></i>
+                <span>GREEN</span>
+            </button>
+            <button class="color-btn btn-yellow" onclick="sendCommand(516)" data-command="516">
+                <i class="fas fa-volume-up"></i>
+                <span>YELLOW</span>
+            </button>
+            <button class="color-btn btn-blue" onclick="sendCommand(517)" data-command="517">
+                <i class="fas fa-satellite"></i>
+                <span>BLUE</span>
+            </button>
+        </div>
+        
+        <div class="fav-row">
+            <button class="fav-btn" onclick="sendCommand(518)" data-command="518">
+                <i class="fas fa-star"></i>
+                <span>FAV</span>
+            </button>
+            <button class="fav-btn" onclick="sendCommand(507)" data-command="507">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Guide</span>
+            </button>
+            <button class="fav-btn" onclick="sendCommand(508)" data-command="508">
+                <i class="fas fa-music"></i>
+                <span>Audio</span>
+            </button>
+            <button class="fav-btn" onclick="sendCommand(519)" data-command="519">
+                <i class="fas fa-tv"></i>
+                <span></span>
+            </button>
+        </div>
+        
+        <div class="f-row">
+            <button class="f-btn" onclick="sendCommand(501)" data-command="501">F1</button>
+            <button class="f-btn" onclick="sendCommand(502)" data-command="502">F2</button>
+            <button class="f-btn" onclick="sendCommand(503)" data-command="503">F3</button>
+            <button class="f-btn" onclick="sendCommand(504)" data-command="504">F4</button>
+        </div>
+        
+        <div class="media-row">
+            <button class="media-btn" onclick="sendCommand(520)" data-command="520">
+                <i class="fas fa-circle" style="color: #e74c3c;"></i>
+            </button>
+            <button class="media-btn" onclick="sendCommand(166)" data-command="166">
+                <i class="fas fa-square"></i>
+            </button>
+            <button class="media-btn" onclick="sendCommand(167)" data-command="167">
+                <i class="fas fa-fast-forward"></i>
+            </button>
+            <button class="media-btn" onclick="sendCommand(168)" data-command="168">
+                <i class="fas fa-compress"></i>
+            </button>
+        </div>
+        
+        <div class="media-row">
+            <button class="media-btn" onclick="sendCommand(163)" data-command="163">
+                <i class="fas fa-backward"></i>
+            </button>
+            <button class="media-btn" onclick="sendCommand(164)" data-command="164">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="media-btn" onclick="sendCommand(165)" data-command="165">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button class="media-btn" onclick="sendCommand(169)" data-command="169">
+                <i class="fas fa-forward"></i>
+            </button>
+        </div>
+        
+        <div class="logo">
+            <div class="logo-text">beout<span>Q</span> SPORTS</div>
+        </div>
+    </div>
+    
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> Settings</h2>
+                <button class="close-btn" onclick="closeSettings()">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="receiverIP">Receiver IP Address</label>
+                <input type="text" id="receiverIP" placeholder="192.168.1.100" value="">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="rememberIP" checked>
+                <label for="rememberIP">Remember IP Address</label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="vibrationEnabled" checked>
+                <label for="vibrationEnabled">Vibration Feedback</label>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn-test" onclick="testConnection()">
+                    <i class="fas fa-satellite"></i> Test
+                </button>
+                <button class="btn-save" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="message" id="message"></div>
+    
+    <script>
+        let receiverIP = localStorage.getItem('dreammax_ip') || '';
+        let vibrationEnabled = localStorage.getItem('dreammax_vibration') === 'false' ? false : true;
+        
+        let numberBuffer = '';
+        let numberTimeout;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (receiverIP) {
+                document.getElementById('receiverIP').value = receiverIP;
+                checkConnection();
+            }
+            registerServiceWorker();
+        });
+        
+        async function sendCommand(command) {
+            if (!receiverIP) {
+                showMessage('Please configure receiver IP first!', 'error');
+                openSettings();
+                return;
+            }
+            
+            if (vibrationEnabled && navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+            
+            try {
+                const url = `http://${receiverIP}/web/remotecontrol?command=${command}`;
+                const response = await fetch(url, { method: 'GET', mode: 'cors' });
+                
+                if (response.ok || response.status === 0) {
+                    updateStatus(true);
+                    showMessage('Command sent!', '');
+                    if (vibrationEnabled && navigator.vibrate) {
+                        navigator.vibrate([10, 50, 10]);
+                    }
+                } else {
+                    updateStatus(false);
+                    showMessage('Command failed!', 'error');
+                }
+            } catch (error) {
+                updateStatus(false);
+                console.error('Error:', error);
+                showMessage('Connection failed!', 'error');
+            }
+        }
+        
+        function sendNumber(num) {
+            if (!receiverIP) {
+                showMessage('Please configure receiver IP first!', 'error');
+                openSettings();
+                return;
+            }
+            
+            numberBuffer += num.toString();
+            
+            if (numberTimeout) {
+                clearTimeout(numberTimeout);
+            }
+            
+            numberTimeout = setTimeout(() => {
+                const channel = numberBuffer;
+                numberBuffer = '';
+                sendChannel(channel);
+            }, 300);
+        }
+        
+        function sendChannel(channel) {
+            if (vibrationEnabled && navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+            
+            const url = `http://${receiverIP}/web/zap?chn=${channel}`;
+            fetch(url, { method: 'GET', mode: 'cors' })
+                .then(response => {
+                    if (response.ok || response.status === 0) {
+                        updateStatus(true);
+                    }
+                })
+                .catch(error => {
+                    updateStatus(false);
+                    console.error('Error:', error);
+                });
+        }
+        
+        async function checkConnection() {
+            if (!receiverIP) return;
+            
+            try {
+                const url = `http://${receiverIP}/api/info`;
+                const response = await fetch(url, { method: 'GET', mode: 'cors' });
+                updateStatus(response.ok || response.status === 0);
+            } catch (error) {
+                updateStatus(false);
+            }
+        }
+        
+        function testConnection() {
+            if (!receiverIP) {
+                showMessage('Please enter IP address!', 'error');
+                return;
+            }
+            
+            showMessage('Testing connection...', '');
+            checkConnection().then(() => {
+                const status = document.getElementById('statusIndicator').classList.contains('connected');
+                showMessage(status ? 'Connected!' : 'Connection failed!', status ? '' : 'error');
+            });
+        }
+        
+        function updateStatus(connected) {
+            const indicator = document.getElementById('statusIndicator');
+            if (connected) {
+                indicator.classList.add('connected');
+            } else {
+                indicator.classList.remove('connected');
+            }
+        }
+        
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = 'message show' + (type === 'error' ? ' error' : '');
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 2000);
+        }
+        
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            document.getElementById('receiverIP').value = receiverIP;
+            document.getElementById('vibrationEnabled').checked = vibrationEnabled;
+        }
+        
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+        
+        function saveSettings() {
+            receiverIP = document.getElementById('receiverIP').value.trim();
+            vibrationEnabled = document.getElementById('vibrationEnabled').checked;
+            
+            if (document.getElementById('rememberIP').checked) {
+                localStorage.setItem('dreammax_ip', receiverIP);
+                localStorage.setItem('dreammax_vibration', vibrationEnabled);
+            }
+            
+            if (receiverIP) {
+                checkConnection();
+                showMessage('Settings saved!', '');
+            }
+            
+            closeSettings();
+        }
+        
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            }
+        }
+        
+        document.getElementById('settingsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'settingsModal') {
+                closeSettings();
+            }
+        });
+        
+        document.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
