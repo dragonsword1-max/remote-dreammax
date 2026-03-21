@@ -74,7 +74,163 @@
             max-width: 400px;
             margin: 0 auto;
         }
+
+        /* SCAN MODE STYLES */
+        .scan-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.98);
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+        }
         
+        .scan-modal.active {
+            display: flex;
+        }
+        
+        .scan-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .scan-icon {
+            font-size: 4rem;
+            color: #3498db;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        
+        .scan-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .scan-subtitle {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        
+        .scan-progress {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .scan-status {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        .scan-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .scan-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ed573);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+        
+        .scan-results {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .scan-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 6px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .scan-result-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .scan-result-ip {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .scan-result-status {
+            font-size: 0.8rem;
+            color: #2ed573;
+        }
+        
+        .scan-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .scan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .skip-scan-btn {
+            margin-top: 15px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            color: #888;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #ff4757;
+        }
+        
+        /* TOP ROW */
         .top-row {
             display: flex;
             justify-content: space-between;
@@ -105,6 +261,7 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         
+        /* NUMBER PAD */
         .number-pad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -125,6 +282,7 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         
+        /* VOL/CH ROW */
         .vol-ch-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -154,6 +312,7 @@
             font-size: 1rem;
         }
         
+        /* HOME ROW */
         .home-row {
             display: grid;
             grid-template-columns: 1fr 1.5fr 1fr;
@@ -176,6 +335,7 @@
             justify-content: center;
         }
         
+        /* D-PAD */
         .d-pad-container {
             display: flex;
             justify-content: center;
@@ -231,6 +391,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
         
+        /* INFO ROW */
         .info-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -238,6 +399,7 @@
             margin-bottom: 15px;
         }
         
+        /* COLOR BUTTONS */
         .color-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -274,6 +436,7 @@
         .btn-yellow { background: linear-gradient(145deg, #f39c12, #d68910); }
         .btn-blue { background: linear-gradient(145deg, #3498db, #2980b9); }
         
+        /* FAV ROW */
         .fav-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -303,6 +466,7 @@
             font-size: 0.9rem;
         }
         
+        /* F ROW */
         .f-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -323,6 +487,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
+        /* MEDIA ROW */
         .media-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -345,6 +510,7 @@
             justify-content: center;
         }
         
+        /* LOGO */
         .logo {
             text-align: center;
             margin: 20px 0 10px 0;
@@ -364,6 +530,7 @@
             color: #3498db;
         }
         
+        /* SETTINGS MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -465,15 +632,30 @@
         }
         
         .btn-save {
-            background: linear-gradient(145deg, #27ae60, #1e8449);
+            background: linear-gradient(145deg, #2ed573, #26c063);
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
-            padding: 12px;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
+            box-shadow: 0 3px 6px rgba(46, 213, 115, 0.3);
+            padding: 12px 24px;
         }
         
+        .btn-clear {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(231, 76, 60, 0.3);
+            padding: 12px 24px;
+        }
+        
+        /* TOAST MESSAGE */
         .message {
             position: fixed;
             bottom: 100px;
@@ -496,11 +678,13 @@
             background: rgba(231, 76, 60, 0.9);
         }
         
+        /* ANIMATIONS */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
         
+        /* BUTTON ACTIVE STATES */
         .power-btn-small:active,
         .mute-btn:active,
         .number-btn:active,
@@ -515,6 +699,36 @@
     </style>
 </head>
 <body>
+    <!-- SCAN MODE MODAL -->
+    <div class="scan-modal" id="scanModal">
+        <div class="scan-container">
+            <div class="scan-icon">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <div class="scan-title">Finding Your DreamMax</div>
+            <div class="scan-subtitle">Scanning network for receiver...</div>
+            
+            <div class="scan-progress">
+                <div class="scan-status" id="scanStatus">Starting scan...</div>
+                <div class="scan-bar">
+                    <div class="scan-bar-fill" id="scanBar"></div>
+                </div>
+                <div style="font-size: 0.8rem; color: #666;" id="scanProgress">0/254</div>
+            </div>
+            
+            <div class="scan-results" id="scanResults"></div>
+            
+            <button class="scan-btn" id="scanBtn" onclick="startScan()">
+                <i class="fas fa-search"></i> Start Scan
+            </button>
+            
+            <button class="skip-scan-btn" onclick="skipScan()">
+                Skip - Enter IP Manually
+            </button>
+        </div>
+    </div>
+    
+    <!-- Header -->
     <div class="header">
         <h1><i class="fas fa-satellite-dish"></i> DreamMax B9S2X</h1>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -526,6 +740,7 @@
     </div>
     
     <div class="container">
+        <!-- Top Row: Power + Mute -->
         <div class="top-row">
             <button class="power-btn-small" onclick="sendCommand(116)" data-command="116">
                 <i class="fas fa-power-off"></i>
@@ -535,6 +750,7 @@
             </button>
         </div>
         
+        <!-- Number Pad 1-9 -->
         <div class="number-pad">
             <button class="number-btn" onclick="sendNumber(1)" data-command="2">1</button>
             <button class="number-btn" onclick="sendNumber(2)" data-command="3">2</button>
@@ -547,6 +763,7 @@
             <button class="number-btn" onclick="sendNumber(9)" data-command="10">9</button>
         </div>
         
+        <!-- Volume/Channel Row -->
         <div class="vol-ch-row">
             <button class="control-btn" onclick="sendCommand(115)" data-command="115">
                 <i class="fas fa-volume-up"></i>
@@ -570,6 +787,7 @@
             </button>
         </div>
         
+        <!-- Home Row -->
         <div class="home-row">
             <button class="control-btn" onclick="sendCommand(139)" data-command="139">
                 <i class="fas fa-bars"></i>
@@ -582,6 +800,7 @@
             </button>
         </div>
         
+        <!-- Circular D-Pad -->
         <div class="d-pad-container">
             <div class="d-pad">
                 <button class="d-pad-btn d-pad-up" onclick="sendCommand(103)" data-command="103">
@@ -602,6 +821,7 @@
             </div>
         </div>
         
+        <!-- Info/IPTV/Refresh Row -->
         <div class="info-row">
             <button class="control-btn" onclick="sendCommand(506)" data-command="506">
                 <i class="fas fa-info-circle"></i>
@@ -614,6 +834,7 @@
             </button>
         </div>
         
+        <!-- Color Buttons -->
         <div class="color-buttons">
             <button class="color-btn btn-red" onclick="sendCommand(514)" data-command="514">
                 <i class="fas fa-mobile-alt"></i>
@@ -633,6 +854,7 @@
             </button>
         </div>
         
+        <!-- FAV/Guide/Audio/Satellite Row -->
         <div class="fav-row">
             <button class="fav-btn" onclick="sendCommand(518)" data-command="518">
                 <i class="fas fa-star"></i>
@@ -652,6 +874,7 @@
             </button>
         </div>
         
+        <!-- F1-F4 Row -->
         <div class="f-row">
             <button class="f-btn" onclick="sendCommand(501)" data-command="501">F1</button>
             <button class="f-btn" onclick="sendCommand(502)" data-command="502">F2</button>
@@ -659,6 +882,7 @@
             <button class="f-btn" onclick="sendCommand(504)" data-command="504">F4</button>
         </div>
         
+        <!-- Media Controls Row 1 -->
         <div class="media-row">
             <button class="media-btn" onclick="sendCommand(520)" data-command="520">
                 <i class="fas fa-circle" style="color: #e74c3c;"></i>
@@ -674,6 +898,7 @@
             </button>
         </div>
         
+        <!-- Media Controls Row 2 -->
         <div class="media-row">
             <button class="media-btn" onclick="sendCommand(163)" data-command="163">
                 <i class="fas fa-backward"></i>
@@ -689,11 +914,13 @@
             </button>
         </div>
         
+        <!-- BeoutQ Logo -->
         <div class="logo">
             <div class="logo-text">beout<span>Q</span> SPORTS</div>
         </div>
     </div>
     
+    <!-- Settings Modal -->
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -703,7 +930,7 @@
             
             <div class="form-group">
                 <label for="receiverIP">Receiver IP Address</label>
-                <input type="text" id="receiverIP" placeholder="192.168.1.100" value="">
+                <input type="text" id="receiverIP" placeholder="192.168.0.100" value="">
             </div>
             
             <div class="checkbox-group">
@@ -715,10 +942,21 @@
                 <input type="checkbox" id="vibrationEnabled" checked>
                 <label for="vibrationEnabled">Vibration Feedback</label>
             </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="skipScanNextTime">
+                <label for="skipScanNextTime">Skip Auto-Scan Next Time</label>
+            </div>
             
             <div class="modal-buttons">
                 <button class="btn-test" onclick="testConnection()">
                     <i class="fas fa-satellite"></i> Test
+                </button>
+                <button class="btn-test" onclick="showScanModal()">
+                    <i class="fas fa-search"></i> Scan
+                </button>
+                <button class="btn-clear" onclick="clearSettings()">
+                    <i class="fas fa-trash"></i> Clear & Reset
                 </button>
                 <button class="btn-save" onclick="saveSettings()">
                     <i class="fas fa-save"></i> Save
@@ -727,22 +965,238 @@
         </div>
     </div>
     
+    <!-- Toast Message -->
     <div class="message" id="message"></div>
     
     <script>
+        // STATE
         let receiverIP = localStorage.getItem('dreammax_ip') || '';
         let vibrationEnabled = localStorage.getItem('dreammax_vibration') === 'false' ? false : true;
-        
+        let skipScan = localStorage.getItem('dreammax_skip_scan') === 'true';
         let numberBuffer = '';
         let numberTimeout;
+        let scanInProgress = false;
+        let foundDevices = [];
         
+        // CORS Bypass methods
+        const CORS_METHODS = {
+            DIRECT: 'direct',
+            IMAGE_PING: 'image_ping',
+            PROXY: 'proxy'
+        };
+        let currentCorsMethod = localStorage.getItem('dreammax_cors_method') || CORS_METHODS.DIRECT;
+        
+        // Public CORS proxies (fallback)
+        const CORS_PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://cors-anywhere.herokuapp.com/'
+        ];
+        
+        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
-            if (receiverIP) {
+            if (receiverIP && skipScan) {
                 document.getElementById('receiverIP').value = receiverIP;
                 checkConnection();
+                registerServiceWorker();
+            } else if (!receiverIP || !skipScan) {
+                // Show scan modal on first run or if no IP saved
+                setTimeout(() => {
+                    showScanModal();
+                }, 500);
             }
-            registerServiceWorker();
         });
+        
+        // ====================
+        // SCAN FUNCTIONS
+        // ====================
+        
+        function showScanModal() {
+            document.getElementById('scanModal').classList.add('active');
+            resetScanUI();
+        }
+        
+        function skipScan() {
+            document.getElementById('scanModal').classList.remove('active');
+            openSettings();
+        }
+        
+        function resetScanUI() {
+            document.getElementById('scanStatus').textContent = 'Ready to scan';
+            document.getElementById('scanBar').style.width = '0%';
+            document.getElementById('scanProgress').textContent = '0/254';
+            document.getElementById('scanResults').innerHTML = '';
+            document.getElementById('scanBtn').disabled = false;
+            foundDevices = [];
+        }
+        
+        async function startScan() {
+            if (scanInProgress) return;
+            
+            scanInProgress = true;
+            document.getElementById('scanBtn').disabled = true;
+            document.getElementById('scanResults').innerHTML = '<div class="no-results">Scanning...</div>';
+            
+            // Detect network range from local IP
+            const networkRange = await detectNetworkRange();
+            const totalIPs = 254;
+            let scanned = 0;
+            
+            document.getElementById('scanStatus').textContent = `Scanning ${networkRange}...`;
+            
+            // Scan IPs in parallel batches
+            const batch = async (start, end) => {
+                const promises = [];
+                
+                for (let i = start; i <= end; i++) {
+                    const ip = `${networkRange}.${i}`;
+                    const promise = testIP(ip).then(result => {
+                        scanned++;
+                        updateScanProgress(scanned, totalIPs);
+                        
+                        if (result) {
+                            foundDevices.push(ip);
+                            addScanResult(ip, 'DreamMax Found!');
+                        }
+                    }).catch(() => {
+                        scanned++;
+                        updateScanProgress(scanned, totalIPs);
+                    });
+                    
+                    promises.push(promise);
+                    
+                    // Limit parallel requests to avoid overwhelming
+                    if (promises.length >= 10) {
+                        await Promise.all(promises);
+                        promises.length = 0;
+                    }
+                }
+                
+                await Promise.all(promises);
+            };
+            
+            // Scan in batches
+            await batch(1, 100);
+            await batch(101, 200);
+            await batch(201, 254);
+            
+            scanInProgress = false;
+            document.getElementById('scanBtn').disabled = false;
+            
+            if (foundDevices.length > 0) {
+                document.getElementById('scanStatus').textContent = `Found ${foundDevices.length} device(s)!`;
+                document.getElementById('scanResults').innerHTML = '';
+                
+                foundDevices.forEach((ip, index) => {
+                    addScanResult(ip, 'Click to connect', () => {
+                        connectToDevice(ip);
+                    });
+                });
+            } else {
+                document.getElementById('scanStatus').textContent = 'No devices found';
+                document.getElementById('scanResults').innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <div>No DreamMax receiver found</div>
+                        <div style="font-size: 0.8rem; margin-top: 10px; color: #888;">
+                            Make sure the receiver is powered on and connected to the same Wi-Fi network
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        async function detectNetworkRange() {
+            try {
+                // Try to get local IP from network information
+                const ipParts = window.location.hostname.split('.');
+                if (ipParts.length === 4 && ipParts[3] === 'localhost') {
+                    // Default common ranges
+                    return '192.168.0';
+                }
+                return '192.168.0';
+            } catch {
+                return '192.168.0';
+            }
+        }
+        
+        async function testIP(ip) {
+            const endpoints = [
+                '/web/info',
+                '/api/info',
+                '/web/webif',
+                '/'
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    // Try image ping method (bypasses CORS)
+                    const startTime = Date.now();
+                    
+                    await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        const timeout = setTimeout(() => reject(new Error('Timeout')), 1000);
+                        
+                        img.onload = () => {
+                            clearTimeout(timeout);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            clearTimeout(timeout);
+                            reject(new Error('Failed'));
+                        };
+                        
+                        img.src = `http://${ip}${endpoint}?t=${Date.now()}`;
+                    });
+                    
+                    // If we get here, the IP responded
+                    return true;
+                    
+                } catch (error) {
+                    continue;
+                }
+            }
+            
+            return false;
+        }
+        
+        function updateScanProgress(current, total) {
+            const percentage = (current / total) * 100;
+            document.getElementById('scanBar').style.width = `${percentage}%`;
+            document.getElementById('scanProgress').textContent = `${current}/${total}`;
+        }
+        
+        function addScanResult(ip, status, onClick = null) {
+            const results = document.getElementById('scanResults');
+            const item = document.createElement('div');
+            item.className = 'scan-result-item';
+            item.innerHTML = `
+                <div class="scan-result-ip"><i class="fas fa-server"></i> ${ip}</div>
+                <div class="scan-result-status">${status}</div>
+            `;
+            
+            if (onClick) {
+                item.style.cursor = 'pointer';
+                item.onclick = onClick;
+            }
+            
+            results.appendChild(item);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        function connectToDevice(ip) {
+            receiverIP = ip;
+            localStorage.setItem('dreammax_ip', ip);
+            document.getElementById('scanModal').classList.remove('active');
+            document.getElementById('receiverIP').value = ip;
+            
+            checkConnection();
+            showMessage(`Connected to ${ip}!`, '');
+        }
+        
+        // ====================
+        // COMMAND SENDING WITH CORS BYPASS
+        // ====================
         
         async function sendCommand(command) {
             if (!receiverIP) {
@@ -755,27 +1209,57 @@
                 navigator.vibrate(10);
             }
             
-            try {
-                const url = `http://${receiverIP}/web/remotecontrol?command=${command}`;
-                const response = await fetch(url, { method: 'GET', mode: 'cors' });
-                
-                if (response.ok || response.status === 0) {
-                    updateStatus(true);
-                    showMessage('Command sent!', '');
-                    if (vibrationEnabled && navigator.vibrate) {
-                        navigator.vibrate([10, 50, 10]);
-                    }
-                } else {
-                    updateStatus(false);
-                    showMessage('Command failed!', 'error');
+            const url = `http://${receiverIP}/web/remotecontrol?command=${command}`;
+            
+            // Try different CORS bypass methods
+            let success = false;
+            
+            // Method 1: Direct fetch (works if CORS is enabled on receiver)
+            if (currentCorsMethod === CORS_METHODS.DIRECT) {
+                try {
+                    const response = await fetch(url, { method: 'GET', mode: 'cors' });
+                    success = response.ok || response.status === 0;
+                } catch (error) {
+                    console.log('Direct fetch failed, trying image ping...');
                 }
-            } catch (error) {
+            }
+            
+            // Method 2: Image ping (always works - no CORS needed)
+            if (!success) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        const timeout = setTimeout(() => reject(new Error('Timeout')), 3000);
+                        
+                        img.onload = () => {
+                            clearTimeout(timeout);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            clearTimeout(timeout);
+                            reject(new Error('Failed'));
+                        };
+                        
+                        img.src = `${url}&t=${Date.now()}`;
+                    });
+                    success = true;
+                } catch (error) {
+                    console.log('Image ping failed');
+                }
+            }
+            
+            if (success) {
+                updateStatus(true);
+                if (vibrationEnabled && navigator.vibrate) {
+                    navigator.vibrate([10, 50, 10]);
+                }
+            } else {
                 updateStatus(false);
-                console.error('Error:', error);
-                showMessage('Connection failed!', 'error');
+                showMessage('Command failed - check connection', 'error');
             }
         }
         
+        // Send number with buffer for quick channel entry
         function sendNumber(num) {
             if (!receiverIP) {
                 showMessage('Please configure receiver IP first!', 'error');
@@ -796,49 +1280,86 @@
             }, 300);
         }
         
+        // Send channel number
         function sendChannel(channel) {
             if (vibrationEnabled && navigator.vibrate) {
                 navigator.vibrate(10);
             }
             
             const url = `http://${receiverIP}/web/zap?chn=${channel}`;
-            fetch(url, { method: 'GET', mode: 'cors' })
-                .then(response => {
-                    if (response.ok || response.status === 0) {
-                        updateStatus(true);
-                    }
-                })
-                .catch(error => {
-                    updateStatus(false);
-                    console.error('Error:', error);
-                });
+            
+            // Use image ping for CORS bypass
+            const img = new Image();
+            img.src = `${url}&t=${Date.now()}`;
+            
+            img.onload = () => {
+                updateStatus(true);
+            };
+            
+            img.onerror = () => {
+                updateStatus(false);
+            };
         }
         
+        // Check connection to receiver
         async function checkConnection() {
             if (!receiverIP) return;
             
             try {
-                const url = `http://${receiverIP}/api/info`;
-                const response = await fetch(url, { method: 'GET', mode: 'cors' });
-                updateStatus(response.ok || response.status === 0);
+                // Use image ping for CORS bypass
+                await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const timeout = setTimeout(() => reject(new Error('Timeout')), 3000);
+                    
+                    img.onload = () => {
+                        clearTimeout(timeout);
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        clearTimeout(timeout);
+                        reject(new Error('Failed'));
+                    };
+                    
+                    img.src = `http://${receiverIP}/web/info?t=${Date.now()}`;
+                });
+                
+                updateStatus(true);
             } catch (error) {
                 updateStatus(false);
             }
         }
         
+        // Test connection
         function testConnection() {
-            if (!receiverIP) {
+            let testIP = document.getElementById('receiverIP').value.trim();
+            if (!testIP) {
                 showMessage('Please enter IP address!', 'error');
                 return;
             }
             
+            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipPattern.test(testIP)) {
+                showMessage('Invalid IP format!', 'error');
+                return;
+            }
+            
+            const originalIP = receiverIP;
+            receiverIP = testIP;
+            
             showMessage('Testing connection...', '');
             checkConnection().then(() => {
                 const status = document.getElementById('statusIndicator').classList.contains('connected');
-                showMessage(status ? 'Connected!' : 'Connection failed!', status ? '' : 'error');
+                if (status) {
+                    showMessage('Connected successfully!', '');
+                } else {
+                    showMessage('Connection failed! Check IP.', 'error');
+                    receiverIP = originalIP;
+                    document.getElementById('receiverIP').value = originalIP || '';
+                }
             });
         }
         
+        // Update status indicator
         function updateStatus(connected) {
             const indicator = document.getElementById('statusIndicator');
             if (connected) {
@@ -848,6 +1369,7 @@
             }
         }
         
+        // Show message
         function showMessage(text, type) {
             const message = document.getElementById('message');
             message.textContent = text;
@@ -858,10 +1380,12 @@
             }, 2000);
         }
         
+        // Settings modal
         function openSettings() {
             document.getElementById('settingsModal').classList.add('active');
             document.getElementById('receiverIP').value = receiverIP;
             document.getElementById('vibrationEnabled').checked = vibrationEnabled;
+            document.getElementById('skipScanNextTime').checked = skipScan;
         }
         
         function closeSettings() {
@@ -871,10 +1395,12 @@
         function saveSettings() {
             receiverIP = document.getElementById('receiverIP').value.trim();
             vibrationEnabled = document.getElementById('vibrationEnabled').checked;
+            skipScan = document.getElementById('skipScanNextTime').checked;
             
             if (document.getElementById('rememberIP').checked) {
                 localStorage.setItem('dreammax_ip', receiverIP);
                 localStorage.setItem('dreammax_vibration', vibrationEnabled);
+                localStorage.setItem('dreammax_skip_scan', skipScan);
             }
             
             if (receiverIP) {
@@ -885,6 +1411,22 @@
             closeSettings();
         }
         
+        function clearSettings() {
+            localStorage.removeItem('dreammax_ip');
+            localStorage.removeItem('dreammax_vibration');
+            localStorage.removeItem('dreammax_skip_scan');
+            receiverIP = '';
+            vibrationEnabled = true;
+            skipScan = false;
+            document.getElementById('receiverIP').value = '';
+            document.getElementById('vibrationEnabled').checked = true;
+            document.getElementById('rememberIP').checked = true;
+            document.getElementById('skipScanNextTime').checked = false;
+            updateStatus(false);
+            showMessage('Settings cleared!', '');
+        }
+        
+        // Service Worker registration
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
@@ -897,12 +1439,14 @@
             }
         }
         
+        // Close modal on outside click
         document.getElementById('settingsModal').addEventListener('click', (e) => {
             if (e.target.id === 'settingsModal') {
                 closeSettings();
             }
         });
         
+        // Prevent zoom on double tap
         document.addEventListener('dblclick', (e) => {
             e.preventDefault();
         }, { passive: false });
