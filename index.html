@@ -9,8 +9,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a1a2e">
     <title>DreamMax Remote</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="manifest" href="manifest.json?v=2">
+    <link rel="apple-touch-icon" href="/remote-dreammax/icons/icon-192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -693,12 +693,58 @@
         .color-btn:active,
         .fav-btn:active,
         .f-btn:active,
-        .media-btn:active {
-            transform: scale(0.95);
+        .media-btn:active,
+        .d-pad-btn:active,
+        .d-pad-ok:active,
+        .scan-btn:active,
+        .skip-scan-btn:active {
+            transform: scale(0.92);
+            filter: brightness(1.2);
+            transition: all 0.1s ease;
+        }
+        
+        /* Add pressed class for JavaScript feedback */
+        .pressed {
+            transform: scale(0.92) !important;
+            filter: brightness(1.3) !important;
         }
     </style>
 </head>
 <body>
+   <!-- WELCOME MODAL -->
+    <div class="modal" id="welcomeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-satellite-dish"></i> Welcome!</h2>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-remote" style="font-size: 4rem; color: #3498db; margin-bottom: 15px;"></i>
+                <p style="color: #aaa; line-height: 1.6;">
+                    This app controls your DreamMax B9S2X receiver remotely.<br>
+                    <strong style="color: #fff;">Your receiver must be on the same Wi-Fi network as this device.</strong>
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label for="welcomeIP">Receiver IP Address</label>
+                <input type="text" id="welcomeIP" placeholder="e.g., 192.168.0.100">
+                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i> Find it in your receiver's network settings
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn-test" onclick="skipWelcomeAndScan()">
+                    <i class="fas fa-search"></i> Auto-Scan
+                </button>
+                <button class="btn-save" onclick="saveAndContinue()">
+                    <i class="fas fa-arrow-right"></i> Continue
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- SCAN MODE MODAL -->
     <div class="scan-modal" id="scanModal">
         <div class="scan-container">
@@ -718,8 +764,12 @@
             
             <div class="scan-results" id="scanResults"></div>
             
-            <button class="scan-btn" id="scanBtn" onclick="startScan()">
+            <button class="scan-btn" id="scanBtn" onclick="toggleScan()">
                 <i class="fas fa-search"></i> Start Scan
+            </button>
+            
+            <button class="skip-scan-btn" id="skipScanBtn" onclick="skipScan()" style="display: none;">
+                <i class="fas fa-stop"></i> Stop Scan
             </button>
             
             <button class="skip-scan-btn" onclick="skipScan()">
@@ -968,7 +1018,7 @@
     <!-- Toast Message -->
     <div class="message" id="message"></div>
     
-    <script>
+    <script defer>
         // STATE
         let receiverIP = localStorage.getItem('dreammax_ip') || '';
         let vibrationEnabled = localStorage.getItem('dreammax_vibration') === 'false' ? false : true;
@@ -977,6 +1027,7 @@
         let numberTimeout;
         let scanInProgress = false;
         let foundDevices = [];
+        let debugMode = true; // Enable debug logging
         
         // CORS Bypass methods
         const CORS_METHODS = {
@@ -995,17 +1046,64 @@
         
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DreamMax Remote initialized');
+            console.log('Receiver IP:', receiverIP);
+            console.log('Skip scan:', skipScan);
+            console.log('First time user:', !receiverIP);
+            
+            // Check if first time user
+            const hasUsedBefore = localStorage.getItem('dreammax_has_used') === 'true';
+            
             if (receiverIP && skipScan) {
                 document.getElementById('receiverIP').value = receiverIP;
                 checkConnection();
                 registerServiceWorker();
+            } else if (!receiverIP && !hasUsedBefore) {
+                // First time user - show welcome modal
+                setTimeout(() => {
+                    document.getElementById('welcomeModal').classList.add('active');
+                }, 500);
             } else if (!receiverIP || !skipScan) {
-                // Show scan modal on first run or if no IP saved
+                // Show scan modal
                 setTimeout(() => {
                     showScanModal();
                 }, 500);
             }
+            
+            // Register service worker for offline support
+            registerServiceWorker();
         });
+        
+        // Welcome modal functions
+        function skipWelcomeAndScan() {
+            document.getElementById('welcomeModal').classList.remove('active');
+            showScanModal();
+        }
+        
+        function saveAndContinue() {
+            const ip = document.getElementById('welcomeIP').value.trim();
+            if (ip) {
+                const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+                if (ipPattern.test(ip)) {
+                    receiverIP = ip;
+                    localStorage.setItem('dreammax_ip', ip);
+                    localStorage.setItem('dreammax_has_used', 'true');
+                    document.getElementById('welcomeModal').classList.remove('active');
+                    document.getElementById('receiverIP').value = ip;
+                    checkConnection();
+                    if (document.getElementById('statusIndicator').classList.contains('connected')) {
+                        showMessage('Connected successfully!', '');
+                    } else {
+                        showMessage('Connection failed - try auto-scan', 'error');
+                        showScanModal();
+                    }
+                } else {
+                    showMessage('Invalid IP address format!', 'error');
+                }
+            } else {
+                showMessage('Please enter an IP address or use auto-scan', 'error');
+            }
+        }
         
         // ====================
         // SCAN FUNCTIONS
@@ -1016,7 +1114,21 @@
             resetScanUI();
         }
         
+        function toggleScan() {
+            if (scanInProgress) {
+                // Stop scan
+                scanInProgress = false;
+                document.getElementById('scanBtn').innerHTML = '<i class="fas fa-search"></i> Start Scan';
+                document.getElementById('skipScanBtn').style.display = 'none';
+                document.getElementById('scanStatus').textContent = 'Scan stopped';
+            } else {
+                // Start scan
+                startScan();
+            }
+        }
+        
         function skipScan() {
+            scanInProgress = false;
             document.getElementById('scanModal').classList.remove('active');
             openSettings();
         }
@@ -1024,64 +1136,77 @@
         function resetScanUI() {
             document.getElementById('scanStatus').textContent = 'Ready to scan';
             document.getElementById('scanBar').style.width = '0%';
-            document.getElementById('scanProgress').textContent = '0/254';
+            document.getElementById('scanProgress').textContent = '0/1524';
             document.getElementById('scanResults').innerHTML = '';
+            document.getElementById('scanBtn').innerHTML = '<i class="fas fa-search"></i> Start Scan';
             document.getElementById('scanBtn').disabled = false;
+            document.getElementById('skipScanBtn').style.display = 'none';
             foundDevices = [];
+            scanInProgress = false;
         }
         
         async function startScan() {
             if (scanInProgress) return;
             
             scanInProgress = true;
-            document.getElementById('scanBtn').disabled = true;
+            document.getElementById('scanBtn').innerHTML = '<i class="fas fa-pause"></i> Pause Scan';
+            document.getElementById('skipScanBtn').style.display = 'block';
             document.getElementById('scanResults').innerHTML = '<div class="no-results">Scanning...</div>';
             
-            // Detect network range from local IP
-            const networkRange = await detectNetworkRange();
-            const totalIPs = 254;
+            // Scan multiple common network ranges
+            const networkRanges = ['192.168.0', '192.168.1', '192.168.2', '192.168.100', '10.0.0', '10.1.1'];
+            const totalIPs = networkRanges.length * 254;
             let scanned = 0;
             
-            document.getElementById('scanStatus').textContent = `Scanning ${networkRange}...`;
+            document.getElementById('scanStatus').textContent = `Scanning network ranges...`;
             
-            // Scan IPs in parallel batches
-            const batch = async (start, end) => {
-                const promises = [];
+            // Scan each network range
+            for (const networkRange of networkRanges) {
+                if (!scanInProgress) break; // Allow cancellation
                 
-                for (let i = start; i <= end; i++) {
-                    const ip = `${networkRange}.${i}`;
-                    const promise = testIP(ip).then(result => {
-                        scanned++;
-                        updateScanProgress(scanned, totalIPs);
+                document.getElementById('scanStatus').textContent = `Scanning ${networkRange}.x...`;
+                
+                // Scan IPs in parallel batches for this range
+                const batch = async (start, end) => {
+                    const promises = [];
+                    
+                    for (let i = start; i <= end; i++) {
+                        const ip = `${networkRange}.${i}`;
+                        const promise = testIP(ip).then(result => {
+                            scanned++;
+                            updateScanProgress(scanned, totalIPs);
+                            
+                            if (result) {
+                                foundDevices.push(ip);
+                                addScanResult(ip, 'Click to connect');
+                            }
+                        }).catch(() => {
+                            scanned++;
+                            updateScanProgress(scanned, totalIPs);
+                        });
                         
-                        if (result) {
-                            foundDevices.push(ip);
-                            addScanResult(ip, 'DreamMax Found!');
+                        promises.push(promise);
+                        
+                        // Limit parallel requests to avoid overwhelming
+                        if (promises.length >= 15) {
+                            await Promise.all(promises);
+                            promises.length = 0;
                         }
-                    }).catch(() => {
-                        scanned++;
-                        updateScanProgress(scanned, totalIPs);
-                    });
-                    
-                    promises.push(promise);
-                    
-                    // Limit parallel requests to avoid overwhelming
-                    if (promises.length >= 10) {
-                        await Promise.all(promises);
-                        promises.length = 0;
                     }
-                }
+                    
+                    await Promise.all(promises);
+                };
                 
-                await Promise.all(promises);
-            };
-            
-            // Scan in batches
-            await batch(1, 100);
-            await batch(101, 200);
-            await batch(201, 254);
+                // Scan this range in batches
+                await batch(1, 85);
+                await batch(86, 170);
+                await batch(171, 254);
+            }
             
             scanInProgress = false;
+            document.getElementById('scanBtn').innerHTML = '<i class="fas fa-search"></i> Start Scan';
             document.getElementById('scanBtn').disabled = false;
+            document.getElementById('skipScanBtn').style.display = 'none';
             
             if (foundDevices.length > 0) {
                 document.getElementById('scanStatus').textContent = `Found ${foundDevices.length} device(s)!`;
@@ -1107,50 +1232,64 @@
         }
         
         async function detectNetworkRange() {
+            const commonRanges = [
+                '192.168.0',
+                '192.168.1',
+                '192.168.2',
+                '192.168.100',
+                '10.0.0',
+                '10.1.1'
+            ];
+            
+            // Try to detect from browser's network if possible
             try {
-                // Try to get local IP from network information
-                const ipParts = window.location.hostname.split('.');
-                if (ipParts.length === 4 && ipParts[3] === 'localhost') {
-                    // Default common ranges
-                    return '192.168.0';
-                }
-                return '192.168.0';
-            } catch {
-                return '192.168.0';
+                const response = await fetch('https://ipapi.co/ip/');
+                const data = await response.json();
+                // Can't get local IP from external API, use common ranges
+            } catch (e) {
+                // Fall back to common ranges
             }
+            
+            // Return first common range, will scan multiple if needed
+            return commonRanges[0];
         }
         
         async function testIP(ip) {
+            // DreamMax/OpenWebif specific endpoints
             const endpoints = [
                 '/web/info',
                 '/api/info',
                 '/web/webif',
-                '/'
+                '/web/zap',
+                '/web/remotecontrol',
+                '/',
+                '/cgi-bin/luci/',
+                '/status'
             ];
             
             for (const endpoint of endpoints) {
                 try {
-                    // Try image ping method (bypasses CORS)
-                    const startTime = Date.now();
-                    
-                    await new Promise((resolve, reject) => {
+                    // Use image ping method (bypasses CORS)
+                    const result = await new Promise((resolve, reject) => {
                         const img = new Image();
-                        const timeout = setTimeout(() => reject(new Error('Timeout')), 1000);
+                        const timeout = setTimeout(() => reject(new Error('Timeout')), 800);
                         
                         img.onload = () => {
                             clearTimeout(timeout);
-                            resolve();
+                            resolve(true);
                         };
                         img.onerror = () => {
                             clearTimeout(timeout);
-                            reject(new Error('Failed'));
+                            resolve(false);
                         };
                         
                         img.src = `http://${ip}${endpoint}?t=${Date.now()}`;
                     });
                     
-                    // If we get here, the IP responded
-                    return true;
+                    if (result) {
+                        if (debugMode) console.log('Found responsive device at:', ip, 'endpoint:', endpoint);
+                        return true;
+                    }
                     
                 } catch (error) {
                     continue;
@@ -1199,11 +1338,15 @@
         // ====================
         
         async function sendCommand(command) {
+            if (debugMode) console.log('sendCommand called with:', command);
+            
             if (!receiverIP) {
                 showMessage('Please configure receiver IP first!', 'error');
                 openSettings();
                 return;
             }
+            
+            if (debugMode) console.log('Sending command', command, 'to', receiverIP);
             
             if (vibrationEnabled && navigator.vibrate) {
                 navigator.vibrate(10);
@@ -1211,32 +1354,39 @@
             
             const url = `http://${receiverIP}/web/remotecontrol?command=${command}`;
             
+            if (debugMode) console.log('Request URL:', url);
+            
             // Try different CORS bypass methods
             let success = false;
             
             // Method 1: Direct fetch (works if CORS is enabled on receiver)
             if (currentCorsMethod === CORS_METHODS.DIRECT) {
                 try {
+                    if (debugMode) console.log('Trying direct fetch...');
                     const response = await fetch(url, { method: 'GET', mode: 'cors' });
                     success = response.ok || response.status === 0;
+                    if (debugMode) console.log('Direct fetch result:', success, response.status);
                 } catch (error) {
-                    console.log('Direct fetch failed, trying image ping...');
+                    if (debugMode) console.log('Direct fetch failed, trying image ping...');
                 }
             }
             
             // Method 2: Image ping (always works - no CORS needed)
             if (!success) {
                 try {
+                    if (debugMode) console.log('Trying image ping...');
                     await new Promise((resolve, reject) => {
                         const img = new Image();
                         const timeout = setTimeout(() => reject(new Error('Timeout')), 3000);
                         
                         img.onload = () => {
                             clearTimeout(timeout);
+                            if (debugMode) console.log('Image ping success!');
                             resolve();
                         };
                         img.onerror = () => {
                             clearTimeout(timeout);
+                            if (debugMode) console.log('Image ping failed');
                             reject(new Error('Failed'));
                         };
                         
@@ -1244,7 +1394,7 @@
                     });
                     success = true;
                 } catch (error) {
-                    console.log('Image ping failed');
+                    if (debugMode) console.log('Image ping failed:', error);
                 }
             }
             
@@ -1253,14 +1403,18 @@
                 if (vibrationEnabled && navigator.vibrate) {
                     navigator.vibrate([10, 50, 10]);
                 }
+                if (debugMode) console.log('Command sent successfully!');
             } else {
                 updateStatus(false);
                 showMessage('Command failed - check connection', 'error');
+                if (debugMode) console.log('Command failed!');
             }
         }
         
         // Send number with buffer for quick channel entry
         function sendNumber(num) {
+            if (debugMode) console.log('sendNumber called with:', num);
+            
             if (!receiverIP) {
                 showMessage('Please configure receiver IP first!', 'error');
                 openSettings();
@@ -1268,6 +1422,7 @@
             }
             
             numberBuffer += num.toString();
+            if (debugMode) console.log('Number buffer:', numberBuffer);
             
             if (numberTimeout) {
                 clearTimeout(numberTimeout);
@@ -1276,6 +1431,7 @@
             numberTimeout = setTimeout(() => {
                 const channel = numberBuffer;
                 numberBuffer = '';
+                if (debugMode) console.log('Sending channel:', channel);
                 sendChannel(channel);
             }, 300);
         }
@@ -1450,6 +1606,26 @@
         document.addEventListener('dblclick', (e) => {
             e.preventDefault();
         }, { passive: false });
+        
+        // Add visual feedback to all buttons
+        document.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (button) {
+                button.classList.add('pressed');
+                setTimeout(() => button.classList.remove('pressed'), 150);
+            }
+        });
+        
+        // Log all button clicks for debugging
+        document.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (button && debugMode) {
+                const command = button.dataset.command;
+                if (command) {
+                    console.log('Button clicked:', button.textContent.trim(), 'Command:', command);
+                }
+            }
+        });
     </script>
 </body>
 </html>
